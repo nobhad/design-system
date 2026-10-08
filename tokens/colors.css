@@ -1,0 +1,509 @@
+/**
+ * ===============================================
+ * COLOR DESIGN TOKENS
+ * ===============================================
+ * @file src/design-system/tokens/colors.css
+ *
+ * Core color palette and semantic color tokens.
+ * Uses CSS custom properties for runtime theming.
+ */
+
+/* Portal light mode overrides: see portal-theme.css */
+
+:root {
+  /* The nav drawer's page dimmer. Both halves are tokens because the rule that
+     drew it referenced --bg-rgb, which is defined nowhere in the codebase — so
+     it had silently fallen back to a fixed rgba(25, 25, 25, 0.7) in both
+     themes, and raising the alpha barely moved it because 25,25,25 is already
+     close to a dark page. */
+  --nav-overlay-rgb: 25, 25, 25;
+  /* 0.25 in light mode, down from 0.7. The wordmark sits above this scrim and
+     keeps its own colour on purpose (see .nav-logo-row in nav-base.css), so at
+     0.7 it was #333 on a composited #505050 — 1.56:1, against the 4.5:1 AA
+     asks, and axe fails `open navigation menu` on it.
+
+     Measured the whole curve rather than guessing: 0.7 gives 1.56:1, 0.4 gives
+     3.51, 0.3 gives 4.49 — a hair short — and 0.25 passes with margin. The
+     page still reads as pushed back, because the dimming was never what hid
+     it: `backdrop-filter: blur(8px)` on .overlay does that work, and the alpha
+     was only ever darkening on top of it.
+
+     Dark mode keeps 0.9 and is not part of this. Its wordmark is #fafafa
+     there, which measures 7.73:1 against the same scrim. */
+  --nav-overlay-alpha: 0.25;
+  /* One value for every backdrop that dims the page behind a drawer or panel.
+     The site nav and the portal dropdown had picked different fixed greys —
+     0.7 and 0.5 — so opening one looked nothing like opening the other. */
+  --overlay-backdrop: rgba(var(--nav-overlay-rgb), var(--nav-overlay-alpha));
+
+  /* ============================================
+   * PRIMITIVE COLOR PALETTE
+   * ============================================
+   * Global color primitives used by both main site and portals
+   */
+
+  /* THE BRAND RED. One name, one hue, a value per mode — #b91c1c on light
+     grounds and #f87171 on dark (the dark override sits with the rest of the
+     dark theme below).
+
+     It used to be four names for four crimsons: --color-brand-primary
+     (#dc2626, "the logo and brand fills"), --color-brand-accent (#b91c1c,
+     darkened for text contrast), --color-brand-accent-dark (#f87171) and
+     --color-accent forwarding onto whichever applied. Nine names in all
+     resolved to #b91c1c alone. A reader could not tell which to reach for,
+     and the split by usage — fill vs text — is not something a token can
+     enforce.
+
+     #b91c1c is the value that survives both jobs. Measured on the five light
+     grounds it lands on: 4.90 on the page, 5.54 on the menu button, 5.93 on
+     gray-100, 6.38 on the portal surface, 6.47 on white — AA as body text
+     everywhere, where #dc2626 managed 3.66 on the page ground and 4.43 on
+     gray-100. The logo and brand fills take the same red now; a fill only
+     owes 3:1 and clears it comfortably. */
+  --color-brand-red: #b91c1c;
+  --color-brand-red-rgb: 185, 28, 28;
+
+  /* Ink for something painted ON a semantic fill — a button's hover state, a
+     filled pill. It is the INVERSE of the surface, not the surface's text
+     colour: in light mode the fills are the dark end of their hue and want a
+     white label, in dark mode they are the bright end and want a near-black
+     one. Using --color-text-primary there, which is what the success and
+     danger buttons did, put #333 on a dark red (2.01:1) in light mode and
+     white on a light rose (1.89:1) in dark. With this it is 6.20 and 9.20. */
+  --color-ink-on-fill: #ffffff;
+  --color-brand-secondary: #10b981;
+  /* Ink for a surface that is VIVID IN BOTH THEMES — a status pill, a filled
+     badge, the callout's bubble art. Deliberately not --color-text-primary:
+     that flips to near-white in dark mode, and these backgrounds do not flip
+     with it, so following the theme paints white on amber (1.26:1). Fixed dark
+     is the only value that works on all of them. */
+
+  /* Neutral Palette - Gray Scale */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e0e0e0;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  
+  /* Portal Dark Neutrals - evenly spaced dark ramp for portal dark mode */
+  --portal-neutral-0: #000000;
+                    
+  /* Base primitives */
+  --color-off-white: #e0e0e0;
+
+  /* Functional Colors */
+  /* The -500 suffix said "the 500 step of a ramp" over a palette that has no
+     ramp — there was never a -400 or a -600. --color-success-500,
+     --color-warning-500 and --color-info-500 held the same values as
+     --color-success, --color-warning and --color-info, except mode-blind:
+     --color-warning takes a different amber per theme and its -500 twin did
+     not, so whichever one a rule happened to call decided whether it followed
+     the theme. Removed 2026-09-19; --color-error-500 went the same way with
+     the reds. */
+  
+  /* ============================================
+   * SEMANTIC COLOR TOKENS - MAIN SITE (LIGHT)
+   * ============================================
+   * Light background, dark text for main site
+   */
+
+  /* Background Colors - Light base */
+  --color-bg-primary: var(--color-off-white);
+  --color-bg-secondary: var(--color-gray-100);
+  --color-bg-tertiary: var(--color-gray-200);
+  --color-bg-raised: var(--color-gray-300); /* Slightly raised surface (cards, panels) */
+  --color-bg-elevated: var(--color-gray-400); /* More elevated (nested panels) */
+  --color-bg-prominent: var(--color-gray-500); /* Most prominent background level */
+  --color-bg-hover: var(--color-gray-100); /* Solid hover background */
+  /* A readonly field is still a field on the page's background, not a pale
+     card sitting on it. As --color-gray-100 it was #f5f5f5 in both themes:
+     lighter than the light page (#e0e0e0) and glaring on the dark one
+     (#171717). Following the background is what the portal already does. */
+  --color-bg-readonly: var(--color-bg-primary);
+  
+  
+
+  /* Text Colors - Dark on light */
+  --color-text-primary: var(--color-gray-900);
+  /* Channel triplet for the same colour. base/reset.css composes it into
+     `scrollbar-color` with an alpha, which rgba() cannot do to a hex token —
+     so the value has to exist separately as R, G, B. Keep it in step with
+     --color-text-primary above (gray-900, #171717). */
+  --text-rgb: 23, 23, 23;
+  --color-text-secondary: var(--color-gray-700);
+  /* gray-600, not gray-500. #737373 on the off-white page background is
+     3.59:1, and everything wearing this token is body-size text — project
+     taglines, metadata labels, pending-link captions — so it needs 4.5:1
+     (WCAG 1.4.3). #525252 measures 5.92:1 and still reads as the quietest of
+     the three text weights. Changing the token rather than the six call sites
+     keeps the next muted thing accessible by default. */
+  --color-text-tertiary: var(--color-gray-600);
+    /* Default only. portal-theme.css deliberately flattens this to
+     --color-text-primary for the portal surfaces and still wins, being
+     unlayered; this exists so components/loading.css (.error-dismiss) has a
+     value on the public site instead of dropping the declaration. */
+  --color-text-muted: var(--color-text-tertiary);
+  --color-text-inverse: var(--color-off-white);
+  
+  /* Header/Navigation Specific Text Color */
+  --color-nav-text: #333333;
+
+  /* Border Colors - Standard borders */
+  --color-border-primary: var(--color-gray-300);
+  --color-border-secondary: var(--color-gray-200);
+    --color-border-focus: var(--color-brand-red);
+  
+        
+  /* State Colors */
+  --color-state-hover: rgba(0, 0, 0, 0.05);
+
+/* Border color on hover */
+
+  /* Shadow Colors */
+  --color-shadow-sm: rgba(0, 0, 0, 0.05);
+  --color-shadow-md: rgba(0, 0, 0, 0.1);
+  --color-shadow-xl: rgba(0, 0, 0, 0.25);
+  --color-shadow-2xl: rgba(0, 0, 0, 0.3);
+  --color-shadow-3xl: rgba(0, 0, 0, 0.5);
+
+    --color-overlay-light: rgba(0, 0, 0, 0.5);
+    --color-overlay-heavy: rgba(0, 0, 0, 0.8);
+  
+      
+          }
+
+/* ============================================
+ * PORTAL THEME
+ * ============================================
+ * Portal-specific colors are defined in portal-theme.css
+ * This includes dark mode and light mode (default) overrides.
+ */
+
+/* ============================================
+ * DARK THEME OVERRIDES - MAIN SITE
+ * ============================================
+ * Dark theme for the main site (not portals)
+ */
+
+/* The two `:not()`s that used to be here tested <html> for `data-page`, and
+   `data-page` is set on <body> — by `server/views/layouts/portal.ejs` and
+   `auth.ejs` — never on <html>. Both negations were vacuously true, so this
+   block always applied, portal included: the guard expressed an intent it did
+   not carry out.
+
+   Deleted rather than repaired. Making them real means matching on <body>,
+   which moves where these custom properties are DECLARED — and
+   `--overlay-backdrop` is composed on `:root` from two of them. A property
+   substitutes its var()s where it is declared, not where it is read, so moving
+   the ingredients to <body> would leave the composed value on :root holding the
+   light one. `portal-theme.css` already carries that exact workaround with a
+   comment explaining why; a second copy of the problem helps nobody.
+
+   Nothing changes by deleting them — they matched everything already. The
+   portal still wins where it needs to, on
+   `html[data-theme="dark"] body[data-page=…]`: more specific, later in the
+   cascade, and on the closer element. */
+html[data-theme="dark"] {
+  /* Dark mode dims to near-black. Grey-on-dark left the drawer and the page
+     reading as nearly the same value, so the menu stopped looking like it was
+     on top of anything. */
+  --nav-overlay-rgb: 0, 0, 0;
+  --nav-overlay-alpha: 0.9;
+
+  /* Background Colors */
+  --color-bg-primary: var(--color-gray-900);
+  --color-bg-secondary: var(--color-gray-800);
+  --color-bg-tertiary: var(--color-gray-700);
+
+  
+  /* Text Colors */
+  --color-text-primary: var(--color-gray-50);
+  /* See the :root note — mirrors --color-text-primary (gray-50, #fafafa). */
+  --text-rgb: 250, 250, 250;
+  --color-text-secondary: var(--color-gray-200);
+  --color-text-tertiary: var(--color-gray-400);
+  --color-text-inverse: var(--color-gray-900);
+
+  /* Header/Navigation Specific Text Color */
+  --color-nav-text: var(--color-gray-50);
+
+  /* Border Colors */
+  --color-border-primary: var(--color-text-primary);
+  --color-border-secondary: var(--color-gray-700);
+  
+  /* State Colors */
+  --color-state-hover: rgba(255, 255, 255, 0.1);
+    
+  /* Shadow Colors */
+  --color-shadow-sm: rgba(0, 0, 0, 0.3);
+  --color-shadow-md: rgba(0, 0, 0, 0.5);
+  --color-shadow-xl: rgba(0, 0, 0, 0.9);
+}
+
+/* ============================================
+ * HIGH CONTRAST MODE
+ * ============================================ */
+
+@media (prefers-contrast: high) {
+  :root {
+    --color-text-primary: #000000;
+    --color-text-secondary: #000000;
+    --color-border-primary: #000000;
+    --color-shadow-md: rgba(0, 0, 0, 0.5);
+  }
+
+  html[data-theme="dark"] {
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #ffffff;
+    --color-border-primary: #ffffff;
+  }
+}
+
+/* ============================================
+ * LEGACY VARIABLE ALIASES
+ * ============================================
+ * These aliases maintain backwards compatibility
+ * with the legacy variables.css naming convention.
+ * New code should use the semantic tokens above.
+ */
+
+:root,
+html[data-theme="light"] {
+  /* Legacy neutral colors - Main site light scale (matched to live deploy) */
+  --color-neutral-100: #fffdfc;
+  --color-neutral-300: #e0e0e0;
+  --color-neutral-400: var(--color-gray-400);
+  --color-neutral-500: var(--color-gray-500);
+  --color-neutral-600: var(--color-gray-600);
+  --color-neutral-700: var(--color-gray-700);
+  --color-neutral-800: var(--color-gray-800);
+
+  /* Legacy semantic colors - Main site light theme (matched to live deploy) */
+  --color-dark: #333333;
+  --color-light: #ffffff;
+  --color-primary: var(--color-text-primary);
+  --color-secondary: var(--color-brand-secondary);
+  --color-border: #000000;
+
+  /* Ink for something drawn on a light surface *regardless of theme* — line
+     art that is white in both, where following the page's text colour would
+     put white on white. Arrow's speech bubble is the only user today
+     (`arrow-callout-theme.css`), which carried this exact value as a fallback
+     to a token declared nowhere. */
+  --color-text-on-light: #191a0b;
+    --color-shadow: rgba(0, 0, 0, 0.2);
+
+
+  /* Portal label ink under the light theme. Labels sit a step darker than body
+     copy (--color-text-primary is #333333 there) so an uppercase run at
+     label size still reads. Was --color-light-text, which named #171717 —
+     near-black — after an appearance it does not have, and hardcoded
+     --color-gray-900's literal a second time. */
+  --color-label-ink: var(--color-gray-900);
+      
+  /* THE SEMANTIC COLOURS, light mode.
+     Every one of these carries a value per mode, the same way the two reds
+     do. They used to hold one value for both, picked to look right as a
+     filled pill on the portal's dark surface, and measured as TEXT on a light
+     ground they ran from 3.66:1 down to 1.26:1 — the amber was the 1.26, which
+     is the "yellow is impossible to read on light bg" that was reported once
+     and fixed for that one colour only.
+
+     The light values are the darker end of each hue, the dark values the
+     brighter end. Four of the pairs are not new: they are the ones already
+     chosen for --color-status-*-text and --color-text-warning, which existed
+     precisely because the base tokens could not be read. Those names are gone
+     now; the base token does the job. */
+  --color-success: #065f46;
+  --color-warning: #92400e;
+
+
+  /* THE ERROR RED, and deliberately a different red from the brand — rose
+     rather than crimson. It was four names (--color-error #dc2626,
+     --color-error-500 #ef4444, --color-danger forwarding onto the brand
+     accent, --app-color-danger onto that) and in light mode three of them
+     resolved to the brand red, so a destructive action was painted in the
+     same colour as a link.
+
+     Rose-700 because error is TEXT more often than not — 26 of its 53 uses
+     are a `color:` — and it has to pass as text on the same light grounds:
+     4.76 on the page, 5.76 on gray-100, 6.20 on the portal surface, 6.29 on
+     white. #dc2626 would have failed two of those (3.66 and 4.43), which is
+     the very measurement that darkened the brand red in the first place. */
+  --color-error: #be123c;
+  --color-error-rgb: 190, 18, 60;
+  --color-error-light: #ffe4e6;
+  --color-info: #1e40af;
+
+  /* The activity palette. These four are read only by the --activity-*-color
+     set in portal-theme.css, which paints the admin client-detail timeline —
+     one hue per activity type. Not a general palette: nothing else should
+     reach for a pink or a cyan. */
+  --color-purple: #c084fc;
+  --color-pink: #f472b6;
+  --color-cyan: #22d3ee;
+  --color-admin-purple: #a855f7;
+
+  /* ================================================
+     STATUS COLORS - SINGLE SOURCE OF TRUTH
+     See docs/design/STATUS_SYSTEM.md for full documentation
+     ================================================
+
+     STANDARD STATUS COLOR MAPPING:
+     - BLUE (#3b82f6)   = active, in-progress, contacted
+     - YELLOW (#fbbf24) = pending, new, on-hold
+     - GREEN (#10b981)  = completed, converted, replied
+     - RED (#ef4444)    = cancelled, lost, archived
+     - PURPLE (#8b5cf6) = qualified, in-review
+     - GRAY (#6b7280)   = read, inactive
+     ================================================ */
+
+  /* Primary status variables - USE THESE */
+  --status-active: #1e40af; /* Blue - Active/In Progress */
+    
+  --status-pending: #92400e; /* Amber - Pending/On Hold */
+    
+  --status-completed: #065f46; /* Green - Completed/Success */
+    /* Derived, not copied: --color-success-rgb is declared per theme, so the
+       tint follows the colour it tints. It used to be a literal 16, 185, 129 —
+       a bright emerald no token has held since the palette split, in either
+       theme, so it tinted toward a green nothing else on the page used. */
+    --status-completed-bg: rgba(var(--color-success-rgb), 0.15);
+
+  /* Cancelled IS the error state, so it takes the error red rather than a
+     red of its own. This used to be the brand red, on the reasoning that a
+     second unrelated red sat badly beside the accent — true of the bright
+     #ef4444 it was compared against, but the rose error red is a considered
+     second red rather than an accidental one, and a cancelled row reading
+     the same colour as the nav was the cost of having only one. */
+  --status-cancelled: var(--color-error); /* Red - Cancelled/Lost */
+    /* Same derivation. The literal was the light-mode error rgb, correct by
+       hand and only in light mode; in dark it stayed the light rose. */
+    --status-cancelled-bg: rgba(var(--color-error-rgb), 0.15);
+
+  --status-qualified: #6d28d9; /* Violet - Qualified/Review */
+    
+  --status-inactive: #4b5563; /* Gray - Inactive/Read */
+    
+  --status-new: #155e75; /* Cyan - New (distinct from pending) */
+    
+  --status-on-hold: #9a3412; /* Orange - On Hold/Blocked/High Priority */
+    
+  /* Status text colours. The matching --color-status-*-border set was removed
+     2026-09-19: five borders no rule ever drew. */
+  /* The same two statuses as bare TEXT on a dark surface — same reason
+     --color-brand-accent-dark exists. The light pair's text half is far too
+     dark there (2.00:1 and 2.27:1), and the pill's own colour is not light
+     enough either: #3b82f6 measures 3.44:1 on the #333 the public site puts
+     behind it. One step lighter each clears AA at 4.97 and 6.57. */
+
+  /* Planned, the third of these. The raw --status-new cyan (#06b6d4) is fine
+     on dark and fails outright on light: 7.38:1 against the portal ground,
+     1.93:1 against the page's. Same treatment as the two above — a dark cyan
+     for the light theme, a light one for dark. Measured: 5.77:1 on #e5e5e5,
+     6.99:1 on the #333 the page puts behind the badge. */
+
+      
+    
+  /* Terminal colors - saloni-garg inspired (matrix green on black) */
+  --color-terminal-bg: #000000;
+  --color-terminal-bg-light: #0d0d0d;
+  --color-terminal-bg-panel: #0a0a0a;
+    --color-terminal-bg-hover: #1a1a1a;
+  --color-terminal-bg-dark: #222222;
+  --color-terminal-border: #2a2a2a;
+    --color-terminal-green: #7ff709;
+  --color-terminal-green-dark: #5cb800;
+  --color-terminal-blue: #268bd2;
+  --color-terminal-cyan: #88def2;
+  --color-terminal-red: #ff4444;
+  --color-terminal-pink: #ec4891;
+  --color-terminal-text: #e0e8f0;
+  --color-terminal-text-muted: #808080;
+  --color-terminal-text-dim: #606060;
+  --color-terminal-text-dimmer: #404040;
+  --color-terminal-scrollbar: #2a2a2a;
+  --color-terminal-scrollbar-hover: #3a3a3a;
+
+  /* Legacy macOS window button colors */
+  --color-mac-close: #ff5f56;
+  --color-mac-close-rgb: 255, 95, 86;
+  --color-mac-minimize: #ffbd2e;
+  --color-mac-maximize: #27ca40;
+
+  /* RGB variants for rgba() usage. These must track their colour: a tint is
+     the same hue at low alpha, and a triple that says something else quietly
+     paints a different colour behind the text that reads from the token.
+     --color-success-rgb held #10b981 after --color-success moved to the
+     darker green on 2026-09-19, so the success wash was still the old bright
+     one. Like its --color-brand-red-rgb and --color-error-rgb siblings, it
+     takes a value per mode. */
+  --color-success-rgb: 6, 95, 70;
+
+  /* Legacy skeleton loading */
+  --color-skeleton-base: #2a2a2a;
+  --color-skeleton-highlight: #3a3a3a;
+
+
+  /* Legacy business card colors */
+  --color-card-bg: var(--color-off-white);
+  --color-card-bg-gradient-end: #f8f9fa;
+  --color-card-text: #333333;
+
+  
+  /* Legacy form variables */
+      }
+
+/* Dark theme legacy aliases - Main site only */
+/* Same vacuous guard as above; see the note there. */
+html[data-theme="dark"] {
+  /* THE SEMANTIC COLOURS, dark mode — the brighter end of each hue, the way
+     the light block takes the darker end. Measured as text on the two dark
+     grounds these land on, the site's #333333 and the portal's near-black:
+     amber 7.57 / 10.43, green 6.57 / 9.05, blue 4.97 / 6.85, cyan 6.99 / 9.63,
+     violet 4.64 / 6.40, gray 4.98 / 6.86, orange 5.58 / 7.69. */
+  --color-warning: #fbbf24;
+  --color-success: #34d399;
+  --color-info: #60a5fa;
+  --status-active: #60a5fa;
+  --status-pending: #fbbf24;
+  --status-completed: #34d399;
+  --status-qualified: #a78bfa;
+  --status-inactive: #9ca3af;
+  --status-new: #22d3ee;
+  --status-on-hold: #fb923c;
+
+  /* THE BRAND RED on dark grounds. On --color-gray-900 (#171717) the light
+     value #b91c1c is 2.77:1 and even the old #dc2626 only 3.71:1 — the brand
+     red has never passed as text in dark mode. #f87171 measures 6.48:1. */
+  --color-brand-red: #f87171;
+  --color-brand-red-rgb: 248, 113, 113;
+  --color-ink-on-fill: #171717;
+
+  /* THE ERROR RED on dark grounds — rose-300, the counterpart of the light
+     rose-700, staying a different red from the brand in both modes. Measured
+     9.48 on gray-900, 9.20 on the portal's dark surface, 6.68 on the #333 the
+     public site uses. */
+  --color-error: #fda4af;
+  --color-error-rgb: 253, 164, 175;
+  --color-success-rgb: 52, 211, 153;
+  --color-neutral-300: #333333;
+  --color-neutral-100: #3a3a3a;
+  --color-neutral-700: #d0d0d0;
+  --color-neutral-800: #f0f0f0;
+  --color-dark: #e0e0e0;
+  --color-light: #1a1a1a;
+  --color-secondary: var(--color-brand-secondary);
+  --color-shadow: rgba(0, 0, 0, 1);
+
+  /* Business card - soft white */
+  --color-card-bg: var(--color-gray-200);
+  --color-card-bg-gradient-end: var(--color-gray-300);
+}
+
+/* Portal legacy aliases - see portal-theme.css for portal-specific color overrides */

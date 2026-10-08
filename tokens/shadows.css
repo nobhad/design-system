@@ -1,0 +1,78 @@
+/**
+ * ===============================================
+ * SHADOW DESIGN TOKENS
+ * ===============================================
+ * @file src/design-system/tokens/shadows.css
+ * 
+ * Box shadow and elevation system.
+ */
+
+:root {
+  /* ============================================
+   * ELEVATION SYSTEM
+   * ============================================ */
+
+  /* Base shadows using semantic color tokens */
+  --shadow-lg: 0 10px 15px -3px var(--color-shadow-md), 0 4px 6px -4px var(--color-shadow-sm);
+    --shadow-2xl: 0 25px 50px -12px var(--color-shadow-xl);
+  
+  /* ============================================
+   * COLORED SHADOWS
+   * ============================================ */
+
+    
+    
+  /* ============================================
+   * COMPONENT-SPECIFIC SHADOWS
+   * ============================================ */
+
+  /* Card shadows */
+    
+      
+  /* Modal shadows */
+  --shadow-modal: var(--shadow-2xl);
+
+  
+  
+    }
+
+/* ============================================
+ * MAIN SITE / PORTAL SPECIFIC SHADOWS (migrated from variables.css)
+ * ============================================
+ * These use explicit rgba() values rather than semantic color tokens
+ * because they are used on both light and dark surfaces.
+ */
+:root {
+  /* Card shadows — subtle elevation for cards and panels */
+
+  --shadow-inset-light:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.3), inset -1px -1px 3px rgba(0, 0, 0, 0.15);
+
+  /* Elevated shadows — for floating elements */
+  --shadow-elevated-sm: 0 4px 12px rgba(0, 0, 0, 0.15);
+  
+
+  /* Terminal/modal shadows — layered depth effect */
+  --shadow-terminal: 4px 4px 10px rgba(0, 0, 0, 0.3), 0 8px 32px rgba(0, 0, 0, 0.4);
+
+    }
+
+/* ============================================
+ * NOTE: Shadow utility classes removed - use CSS variables directly
+ * Example: box-shadow: var(--shadow-lg);
+ * ============================================ */
+
+/* ============================================
+ * ACCESSIBILITY CONSIDERATIONS
+ * ============================================ */
+
+/* Box-shadow transitions under reduced motion are covered by base/reset.css,
+   which sets transition-duration: 0.01ms !important on * (all properties,
+   box-shadow included). The rule here was redundant; removed 2026-09-16. */
+
+/* High contrast mode considerations */
+@media (prefers-contrast: high) {
+  :root {
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  }
+}
